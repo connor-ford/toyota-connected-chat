@@ -1,0 +1,37 @@
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 32px;
+  border-top: 1px solid var(--toyota-border);
+  background: var(--toyota-panel);
+  font-size: 11px;
+  color: var(--toyota-muted);
+  letter-spacing: 0.03em;
+}
+
+.status-bar-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-dot.idle       { background: var(--toyota-muted); }
+.status-dot.connecting { background: #FBBF24; box-shadow: 0 0 6px #FBBF24; animation: pulse 1s infinite; }
+.status-dot.connected  { background: #4ADE80; box-shadow: 0 0 6px #4ADE80; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
