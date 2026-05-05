@@ -33,11 +33,12 @@ export function useChat({ setAgentMode, setConnected }) {
   const [error, setError] = useState(null);
   const [connectToken, setConnectToken] = useState(null);
   const wsRef = useRef(null);
+  const agentNameRef = useRef(null);
 
-  const appendMessage = useCallback((role, text) => {
+  const appendMessage = useCallback((role, text, senderName = null) => {
     setMessages((prev) => [
       ...prev,
-      { id: uuidv4(), role, text, ts: Date.now() },
+      { id: uuidv4(), role, text, senderName, ts: Date.now() },
     ]);
   }, []);
 
@@ -69,16 +70,13 @@ export function useChat({ setAgentMode, setConnected }) {
     try {
       const data = await callApi(CONNECT_URL, { sessionId: SESSION_ID });
 
-      // Store the connection token for sending messages later
       setConnectToken(data.connectionToken);
       setAgentMode(true);
 
-      // Open the WebSocket connection so Connect sees the customer as present
       const ws = new WebSocket(data.websocketUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        // Subscribe to the chat topic — required by Connect Participant Service
         ws.send(
           JSON.stringify({
             topic: "aws/subscribe",
@@ -86,7 +84,6 @@ export function useChat({ setAgentMode, setConnected }) {
           }),
         );
         setConnected(true);
-        appendMessage("system", "You are now connected to a live agent.");
       };
 
       ws.onmessage = (event) => {
@@ -96,12 +93,56 @@ export function useChat({ setAgentMode, setConnected }) {
 
           const inner = JSON.parse(envelope.content);
 
+          // Agent joined — capture name and notify
+          if (
+            inner.Type === "EVENT" &&
+            inner.ContentType ===
+              "application/vnd.amazonaws.connect.event.participant.joined" &&
+            inner.ParticipantRole === "AGENT"
+          ) {
+            agentNameRef.current = inner.DisplayName;
+            appendMessage(
+              "system",
+              `${inner.DisplayName} has joined the conversation.`,
+            );
+            return;
+          }
+
+          // Agent left — notify
+          if (
+            inner.Type === "EVENT" &&
+            inner.ContentType ===
+              "application/vnd.amazonaws.connect.event.participant.left" &&
+            inner.ParticipantRole === "AGENT"
+          ) {
+            const name = agentNameRef.current || "Agent";
+            appendMessage("system", `${name} has left the conversation.`);
+            return;
+          }
+
+          // Chat ended — notify and reset state
+          if (
+            inner.Type === "EVENT" &&
+            inner.ContentType ===
+              "application/vnd.amazonaws.connect.event.chat.ended"
+          ) {
+            appendMessage("system", "This conversation has ended.");
+            setConnected(false);
+            setAgentMode(false);
+            return;
+          }
+
+          // Agent message — display with name below timestamp
           if (
             inner.Type === "MESSAGE" &&
             inner.ContentType === "text/plain" &&
             inner.ParticipantRole === "AGENT"
           ) {
-            appendMessage("agent", inner.Content);
+            appendMessage(
+              "agent",
+              inner.Content,
+              agentNameRef.current || "Agent",
+            );
           }
         } catch (e) {
           console.error("WebSocket message parse error:", e);
@@ -116,7 +157,6 @@ export function useChat({ setAgentMode, setConnected }) {
       };
 
       ws.onclose = () => {
-        appendMessage("system", "Agent session ended.");
         setConnected(false);
       };
     } catch (e) {
