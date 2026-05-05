@@ -90,25 +90,7 @@ export function useChat({ setAgentMode, setConnected }) {
       };
 
       ws.onmessage = (event) => {
-        try {
-          const envelope = JSON.parse(event.data);
-
-          // Connect wraps messages in a topic envelope
-          // The actual content is a JSON string inside envelope.content
-          if (envelope.topic === "aws/chat") {
-            const inner = JSON.parse(envelope.content);
-
-            if (
-              inner.Type === "MESSAGE" &&
-              inner.ContentType === "text/plain" &&
-              inner.ParticipantRole === "AGENT"
-            ) {
-              appendMessage("agent", inner.Content);
-            }
-          }
-        } catch (e) {
-          console.error("WebSocket message parse error:", e);
-        }
+        console.log("RAW WebSocket message:", event.data);
       };
 
       ws.onerror = (e) => {
