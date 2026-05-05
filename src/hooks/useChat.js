@@ -93,7 +93,7 @@ export function useChat({ setAgentMode, setConnected }) {
 
           const inner = JSON.parse(envelope.content);
 
-          // Agent joined — capture name and notify
+          // agent joined - capture name and notify
           if (
             inner.Type === "EVENT" &&
             inner.ContentType ===
@@ -108,7 +108,7 @@ export function useChat({ setAgentMode, setConnected }) {
             return;
           }
 
-          // Agent left — notify
+          // agent left - notify
           if (
             inner.Type === "EVENT" &&
             inner.ContentType ===
@@ -120,7 +120,7 @@ export function useChat({ setAgentMode, setConnected }) {
             return;
           }
 
-          // Chat ended — notify and reset state
+          // chat ended - notify and reset state
           if (
             inner.Type === "EVENT" &&
             inner.ContentType ===
@@ -132,7 +132,7 @@ export function useChat({ setAgentMode, setConnected }) {
             return;
           }
 
-          // Agent message — display with name below timestamp
+          // agent message - display with name below timestamp
           if (
             inner.Type === "MESSAGE" &&
             inner.ContentType === "text/plain" &&
