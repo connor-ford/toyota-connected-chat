@@ -90,15 +90,21 @@ export function useChat({ setAgentMode, setConnected }) {
       };
 
       ws.onmessage = (event) => {
-        console.log("RAW WebSocket message:", event.data);
         try {
           const envelope = JSON.parse(event.data);
-          console.log("Parsed envelope:", envelope);
-          console.log("Topic:", envelope.topic);
-          console.log("Content type:", typeof envelope.content);
-          console.log("Content:", envelope.content);
+          if (envelope.topic !== "aws/chat") return;
+
+          const inner = JSON.parse(envelope.content);
+
+          if (
+            inner.Type === "MESSAGE" &&
+            inner.ContentType === "text/plain" &&
+            inner.ParticipantRole === "AGENT"
+          ) {
+            appendMessage("agent", inner.Content);
+          }
         } catch (e) {
-          console.error("Parse error:", e);
+          console.error("WebSocket message parse error:", e);
         }
       };
 
