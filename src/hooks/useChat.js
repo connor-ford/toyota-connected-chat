@@ -91,6 +91,15 @@ export function useChat({ setAgentMode, setConnected }) {
 
       ws.onmessage = (event) => {
         console.log("RAW WebSocket message:", event.data);
+        try {
+          const envelope = JSON.parse(event.data);
+          console.log("Parsed envelope:", envelope);
+          console.log("Topic:", envelope.topic);
+          console.log("Content type:", typeof envelope.content);
+          console.log("Content:", envelope.content);
+        } catch (e) {
+          console.error("Parse error:", e);
+        }
       };
 
       ws.onerror = (e) => {
