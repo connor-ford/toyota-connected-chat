@@ -27,11 +27,25 @@
   border-radius: 50%;
 }
 
-.status-dot.idle       { background: var(--toyota-muted); }
-.status-dot.connecting { background: #FBBF24; box-shadow: 0 0 6px #FBBF24; animation: pulse 1s infinite; }
-.status-dot.connected  { background: #4ADE80; box-shadow: 0 0 6px #4ADE80; }
+.status-dot.idle {
+  background: var(--toyota-muted);
+}
+.status-dot.connecting {
+  background: #fbbf24;
+  box-shadow: 0 0 6px #fbbf24;
+  animation: pulse 1s infinite;
+}
+.status-dot.connected {
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+}
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
