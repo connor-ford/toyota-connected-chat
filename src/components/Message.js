@@ -62,7 +62,6 @@ export default function Message({ message }) {
         <div className={`msg-bubble msg-bubble--${role}`}>{text}</div>
         <span className="msg-ts">
           {formatTime(ts)}
-          {console.log("message props:", role, senderName)}
           {role === "agent" && senderName && (
             <span className="msg-sender"> · {senderName}</span>
           )}
